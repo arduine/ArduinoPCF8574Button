@@ -10,16 +10,15 @@ ArduinoPCF8574Button::ArduinoPCF8574Button(ArduinoPCF8574::JUMP jump) : mJump(ju
 void ArduinoPCF8574Button::setup() {
     ArduinoPCF8574::setup();
 
-    auto gpio = ArduinoPCF8574::GPIO();
-
-    gpio.P0 = mButtonGpio[0];
-    gpio.P1 = mButtonGpio[1];
-    gpio.P2 = mButtonGpio[2];
-    gpio.P3 = mButtonGpio[3];
-    gpio.P4 = mButtonGpio[4];
-    gpio.P5 = mButtonGpio[5];
-    gpio.P6 = mButtonGpio[6];
-    gpio.P7 = mButtonGpio[7];
+    auto gpio = ArduinoPCF8574::read(mJump);
+    if (mButtonGpio[0]) gpio.P0 = true;
+    if (mButtonGpio[1]) gpio.P1 = true;
+    if (mButtonGpio[2]) gpio.P2 = true;
+    if (mButtonGpio[3]) gpio.P3 = true;
+    if (mButtonGpio[4]) gpio.P4 = true;
+    if (mButtonGpio[5]) gpio.P5 = true;
+    if (mButtonGpio[6]) gpio.P6 = true;
+    if (mButtonGpio[7]) gpio.P7 = true;
     ArduinoPCF8574::write(mJump, gpio);
 }
 

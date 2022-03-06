@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "keywords": "arduino, pcf8574, gpio, button, esp32, esp8266",
     "description": "Arduino的PCF8574输入Button库",
-    "license": "Apache-2.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/arduine/ArduinoPCF8574Button.git"
@@ -16,5 +15,8 @@
         }
     ],
     "frameworks": "arduino",
-    "platforms": "*"
+    "platforms": "*",
+    "dependencies": {
+        "e39ad77fa0/ArduinoPCF8574": "^1.0.1"
+    }
 }

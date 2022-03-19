@@ -28,52 +28,49 @@ void ArduinoPCF8574Button::loop() {
         return;
     mLoopLatestMillis = _millis;
 
-    std::function<void()>    empty            = [] {};
-
-    std::function<void(int)> onButtonPressed  = [&](int index) {
-        if (mButtonState[index] == ButtonStateEnum::PRESSED)
-            return;
-        mButtonState[index]         = ButtonStateEnum::PRESSED;
-        mButtonPressedMillis[index] = _millis;
-    };
-
-    std::function<void(int)> onButtonReleased = [&](int index) {
-        if (mButtonState[index] == ButtonStateEnum::RELEASED)
-            return;
-        mButtonState[index] = ButtonStateEnum::RELEASED;
-        if (_millis - mButtonPressedMillis[index] >= __ARDUINO_PCF8574_BUTTON_LONG_CLICK_MILLS_) {
-            mButtonOnLongClickListener[index] != nullptr ? mButtonOnLongClickListener[index]() :
-            mButtonOnClickListener[index] != nullptr ? mButtonOnClickListener[index]() : empty();
-        } else if (mButtonOnClickListener[index] != nullptr) {
-            mButtonOnClickListener[index]();
-        }
-    };
-
     auto gpio = ArduinoPCF8574::read(mJump);
-    if (mButtonGpio[0]) gpio.P0 ? onButtonReleased(0) : onButtonPressed(0);
-    if (mButtonGpio[1]) gpio.P1 ? onButtonReleased(1) : onButtonPressed(1);
-    if (mButtonGpio[2]) gpio.P2 ? onButtonReleased(2) : onButtonPressed(2);
-    if (mButtonGpio[3]) gpio.P3 ? onButtonReleased(3) : onButtonPressed(3);
-    if (mButtonGpio[4]) gpio.P4 ? onButtonReleased(4) : onButtonPressed(4);
-    if (mButtonGpio[5]) gpio.P5 ? onButtonReleased(5) : onButtonPressed(5);
-    if (mButtonGpio[6]) gpio.P6 ? onButtonReleased(6) : onButtonPressed(6);
-    if (mButtonGpio[7]) gpio.P7 ? onButtonReleased(7) : onButtonPressed(7);
-
+    if (mButtonGpio[0]) gpio.P0 ? onButtonReleased(_millis, ArduinoPCF8574::PIN::P0) : onButtonPressed(_millis, ArduinoPCF8574::PIN::P0);
+    if (mButtonGpio[1]) gpio.P1 ? onButtonReleased(_millis, ArduinoPCF8574::PIN::P1) : onButtonPressed(_millis, ArduinoPCF8574::PIN::P1);
+    if (mButtonGpio[2]) gpio.P2 ? onButtonReleased(_millis, ArduinoPCF8574::PIN::P2) : onButtonPressed(_millis, ArduinoPCF8574::PIN::P2);
+    if (mButtonGpio[3]) gpio.P3 ? onButtonReleased(_millis, ArduinoPCF8574::PIN::P3) : onButtonPressed(_millis, ArduinoPCF8574::PIN::P3);
+    if (mButtonGpio[4]) gpio.P4 ? onButtonReleased(_millis, ArduinoPCF8574::PIN::P4) : onButtonPressed(_millis, ArduinoPCF8574::PIN::P4);
+    if (mButtonGpio[5]) gpio.P5 ? onButtonReleased(_millis, ArduinoPCF8574::PIN::P5) : onButtonPressed(_millis, ArduinoPCF8574::PIN::P5);
+    if (mButtonGpio[6]) gpio.P6 ? onButtonReleased(_millis, ArduinoPCF8574::PIN::P6) : onButtonPressed(_millis, ArduinoPCF8574::PIN::P6);
+    if (mButtonGpio[7]) gpio.P7 ? onButtonReleased(_millis, ArduinoPCF8574::PIN::P7) : onButtonPressed(_millis, ArduinoPCF8574::PIN::P7);
 }
 
-ArduinoPCF8574Button ArduinoPCF8574Button::setOnClickListener(unsigned short index, const std::function<void()> &listener) {
-    if (index < 0 || index > 7)
+ArduinoPCF8574Button ArduinoPCF8574Button::setOnClickListener(const ArduinoPCF8574::PIN &pin, const ArduinoButtonListener &listener) {
+    if (pin < 0 || pin > 7)
         return *this;
-    mButtonGpio[index]            = true;
-    mButtonOnClickListener[index] = listener;
+    mButtonGpio[pin]            = true;
+    mButtonOnClickListener[pin] = listener;
     return *this;
 }
 
-ArduinoPCF8574Button ArduinoPCF8574Button::setOnLongClickListener(unsigned short index, const std::function<void()> &listener) {
-    if (index < 0 || index > 7)
+ArduinoPCF8574Button ArduinoPCF8574Button::setOnLongClickListener(const ArduinoPCF8574::PIN &pin, const ArduinoButtonListener &listener) {
+    if (pin < 0 || pin > 7)
         return *this;
-    mButtonGpio[index]                = true;
-    mButtonOnLongClickListener[index] = listener;
+    mButtonGpio[pin]                = true;
+    mButtonOnLongClickListener[pin] = listener;
     return *this;
+}
+
+void ArduinoPCF8574Button::onButtonReleased(const unsigned long _millis, const ArduinoPCF8574::PIN &pin) {
+    if (mButtonState[pin] == ButtonStateEnum::RELEASED)
+        return;
+    mButtonState[pin] = ButtonStateEnum::RELEASED;
+    if (_millis - mButtonPressedMillis[pin] >= __ARDUINO_PCF8574_BUTTON_LONG_CLICK_MILLS_) {
+        if (mButtonOnLongClickListener[pin] != nullptr)
+            mButtonOnLongClickListener[pin]();
+    } else if (mButtonOnClickListener[pin] != nullptr) {
+        mButtonOnClickListener[pin]();
+    }
+}
+
+void ArduinoPCF8574Button::onButtonPressed(const unsigned long _millis, const ArduinoPCF8574::PIN &pin) {
+    if (mButtonState[pin] == ButtonStateEnum::PRESSED)
+        return;
+    mButtonState[pin]         = ButtonStateEnum::PRESSED;
+    mButtonPressedMillis[pin] = _millis;
 }
 

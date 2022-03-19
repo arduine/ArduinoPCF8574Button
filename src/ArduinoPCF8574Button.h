@@ -5,7 +5,6 @@
 #ifndef __ARDUINO_PCF8574_BUTTON_H
 #define __ARDUINO_PCF8574_BUTTON_H
 
-#include <functional>
 #include <ArduinoPCF8574.h>
 
 #ifndef __ARDUINO_PCF8574_BUTTON_CLICK_MIN_MILLIS_
@@ -13,10 +12,13 @@
 #endif
 
 #ifndef __ARDUINO_PCF8574_BUTTON_LONG_CLICK_MILLS_
-#define  __ARDUINO_PCF8574_BUTTON_LONG_CLICK_MILLS_ 1500    // 长按时间间隔
+#define  __ARDUINO_PCF8574_BUTTON_LONG_CLICK_MILLS_ 1300    // 长按时间间隔
 #endif
 
 class ArduinoPCF8574Button {
+public:
+    typedef void(*ArduinoButtonListener)();
+
 public:
     explicit ArduinoPCF8574Button(ArduinoPCF8574::JUMP jump);
 
@@ -25,9 +27,9 @@ public:
 
     void loop();
 
-    ArduinoPCF8574Button setOnClickListener(unsigned short index, const std::function<void()> &listener);
+    ArduinoPCF8574Button setOnClickListener(const ArduinoPCF8574::PIN &pin, const ArduinoButtonListener &listener);
 
-    ArduinoPCF8574Button setOnLongClickListener(unsigned short index, const std::function<void()> &listener);
+    ArduinoPCF8574Button setOnLongClickListener(const ArduinoPCF8574::PIN &pin, const ArduinoButtonListener &listener);
 
 
 private:
@@ -50,7 +52,7 @@ private:
      * 按钮点击回调
      * @since 1.0.0
      */
-    std::function<void()> mButtonOnClickListener[8] = {
+    ArduinoButtonListener mButtonOnClickListener[8] = {
             nullptr, nullptr, nullptr, nullptr,
             nullptr, nullptr, nullptr, nullptr
     };
@@ -59,7 +61,7 @@ private:
      * 按钮长按回调
      * @since 1.0.0
      */
-    std::function<void()> mButtonOnLongClickListener[8] = {
+    ArduinoButtonListener mButtonOnLongClickListener[8] = {
             nullptr, nullptr, nullptr, nullptr,
             nullptr, nullptr, nullptr, nullptr
     };
@@ -85,6 +87,10 @@ private:
      */
     bool mButtonGpio[8] = {false, false, false, false, false, false, false, false};
 
+private:
+    void onButtonReleased(unsigned long _millis, const ArduinoPCF8574::PIN &pin);
+
+    void onButtonPressed(unsigned long _millis, const ArduinoPCF8574::PIN &pin);
 };
 
 
